@@ -88,6 +88,13 @@ let page=1;
 const PER_PAGE=50;
 let seconds=30;
 
+function updateTimer(){
+  const now=new Date();
+  seconds=30-(now.getSeconds()%30);
+  document.getElementById("timer").textContent=
+    "Next Wingo result: "+seconds+"s";
+}
+
 function save(){
  localStorage.setItem("wingo_live_state",JSON.stringify(state));
 }
@@ -212,12 +219,8 @@ function nextPage(){
 
 setInterval(load,3000);
 
-setInterval(()=>{
- seconds--;
- if(seconds<=0) seconds=30;
- document.getElementById("timer").textContent=
-   "Next check: "+seconds+"s";
-},1000);
+setInterval(updateTimer,250);
+updateTimer();
 
 render();
 load();
