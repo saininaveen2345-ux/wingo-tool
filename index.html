@@ -5,35 +5,40 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Wingo 30S — BBBBBBBBBB</title>
 <style>
+*{box-sizing:border-box}
 body{margin:0;background:#080d18;color:#eef2ff;font-family:Arial,sans-serif}
 .wrap{max-width:900px;margin:auto;padding:18px}
 .card{background:#111a30;border:1px solid #263250;border-radius:18px;padding:20px;margin-bottom:16px}
 h1{margin:0 0 8px;font-size:25px}
 .muted{color:#9aa7c7}
-.status{padding:12px;border-radius:12px;background:#202a45;margin-top:14px}
-.pred{font-size:58px;font-weight:900;text-align:center;padding:25px;background:#0e1528;border-radius:15px;margin-top:12px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:15px}
-.box{background:#0e1528;padding:18px;border-radius:14px;text-align:center}
-.value{font-size:30px;font-weight:800;margin-top:7px}
+.status{padding:12px;border-radius:12px;background:#202a45;margin-top:15px}
+.pred{font-size:70px;font-weight:900;text-align:center;padding:25px;background:#0e1528;border-radius:16px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.box{background:#0e1528;border-radius:18px;padding:18px;text-align:center}
+.value{font-size:32px;font-weight:800;margin-top:7px}
 .win{color:#22c55e}.loss{color:#ef4444}
 table{width:100%;border-collapse:collapse;margin-top:15px}
 th,td{padding:10px;border-bottom:1px solid #28324c;text-align:center}
+button{background:#263250;color:#fff;border:0;border-radius:10px;padding:10px 14px;margin:5px;cursor:pointer}
+#timer{font-size:22px;font-weight:bold;text-align:center;margin-top:10px}
 @media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
+
 <body>
 <div class="wrap">
 
 <div class="card">
 <h1>🔮 Wingo 30S — BBBBBBBBBB</h1>
-<div class="muted">Fixed B prediction • Live tracker data</div>
-<div id="status" class="status">Connecting...</div>
+<div class="muted">LIVE API • Fixed B prediction</div>
+<div id="status" class="status">🟡 Connecting to Wingo API...</div>
 </div>
 
 <div class="card">
 <div class="muted">CURRENT PREDICTION</div>
 <div id="pred" class="pred">B</div>
-<div id="issue" class="muted" style="text-align:center;margin-top:10px">Loading...</div>
+<div id="issue" class="muted" style="text-align:center;margin-top:15px">Issue: --</div>
+<div id="timer">Next check: 30s</div>
 </div>
 
 <div class="grid">
@@ -43,49 +48,179 @@ th,td{padding:10px;border-bottom:1px solid #28324c;text-align:center}
 <div class="box"><div class="muted">WIN RATE</div><div id="rate" class="value">0%</div></div>
 </div>
 
-<div class="card" style="margin-top:16px">
+<div class="card">
 <b>📜 HISTORY</b>
+<div style="overflow-x:auto">
 <table>
-<thead><tr><th>Issue</th><th>Prediction</th><th>Result</th><th>Status</th></tr></thead>
-<tbody id="history"><tr><td colspan="4">Loading...</td></tr></tbody>
+<thead>
+<tr><th>Issue</th><th>Prediction</th><th>Result</th><th>Status</th></tr>
+</thead>
+<tbody id="history">
+<tr><td colspan="4">Waiting for live result...</td></tr>
+</tbody>
 </table>
+</div>
+<div style="text-align:center;margin-top:10px">
+<button onclick="prevPage()">◀ Previous</button>
+<span id="page">Page 1</span>
+<button onclick="nextPage()">Next ▶</button>
+</div>
 </div>
 
 </div>
 
 <script>
+const API="https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json";
+const PROXIES=[
+ u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),
+ u=>"https://corsproxy.io/?url="+encodeURIComponent(u)
+];
+
+let state=JSON.parse(localStorage.getItem("wingo_live_state")||"null")||{
+ wins:0,
+ losses:0,
+ history:[],
+ currentIssue:null,
+ lastSettled:null
+};
+
+let page=1;
+const PER_PAGE=50;
+let seconds=30;
+
+function save(){
+ localStorage.setItem("wingo_live_state",JSON.stringify(state));
+}
+
+function render(){
+ document.getElementById("win").textContent=state.wins;
+ document.getElementById("loss").textContent=state.losses;
+ let total=state.wins+state.losses;
+ document.getElementById("total").textContent=total;
+ document.getElementById("rate").textContent=
+   total ? ((state.wins/total)*100).toFixed(1)+"%" : "0%";
+
+ let start=(page-1)*PER_PAGE;
+ let rows=state.history.slice().reverse().slice(start,start+PER_PAGE);
+
+ document.getElementById("history").innerHTML=rows.length
+ ? rows.map(x=>`
+ <tr>
+ <td>${x.issue}</td>
+ <td><b>B</b></td>
+ <td>${x.result} ${x.number}</td>
+ <td class="${x.status==="WIN"?"win":"loss"}"><b>${x.status}</b></td>
+ </tr>`).join("")
+ : `<tr><td colspan="4">No history yet</td></tr>`;
+
+ let pages=Math.max(1,Math.ceil(state.history.length/PER_PAGE));
+ if(page>pages) page=pages;
+ document.getElementById("page").textContent=`Page ${page} / ${pages}`;
+}
+
+function addResult(issue,number){
+ let result=Number(number)>=5?"B":"S";
+
+ if(state.lastSettled===issue) return;
+
+ state.history.push({
+   issue:issue,
+   prediction:"B",
+   result:result,
+   number:Number(number),
+   status:result==="B"?"WIN":"LOSS"
+ });
+
+ if(result==="B") state.wins++;
+ else state.losses++;
+
+ state.lastSettled=issue;
+
+ if(state.history.length>5000)
+   state.history=state.history.slice(-5000);
+
+ save();
+ render();
+}
+
+async function getData(){
+ let urls=[API,...PROXIES.map(f=>f(API))];
+
+ for(let url of urls){
+   try{
+     let r=await fetch(url,{cache:"no-store"});
+     if(!r.ok) continue;
+     let d=await r.json();
+     if(d?.data?.list?.length) return d.data.list;
+   }catch(e){}
+ }
+
+ throw new Error("API unavailable");
+}
+
 async function load(){
-try{
-const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});
-const d=await r.json();
+ try{
+   let list=await getData();
+   let latest=list[0];
 
-const cp=d.current_prediction||{};
-document.getElementById("pred").textContent="B";
-document.getElementById("issue").textContent="Issue: "+(cp.issue||"Waiting...");
-document.getElementById("status").textContent="🟢 BBBBBBBBBB tracker connected";
+   let issue=String(latest.issueNumber);
+   let number=Number(latest.number);
 
-const h=Array.isArray(d.history)?d.history:[];
-const wins=h.filter(x=>x.status==="WIN").length;
-const losses=h.filter(x=>x.status==="LOSS").length;
-const total=wins+losses;
-const rate=total?((wins/total)*100).toFixed(1):"0";
+   document.getElementById("status").textContent=
+     "🟢 LIVE — Wingo API connected";
 
-document.getElementById("win").textContent=wins;
-document.getElementById("loss").textContent=losses;
-document.getElementById("total").textContent=total;
-document.getElementById("rate").textContent=rate+"%";
+   document.getElementById("issue").textContent=
+     "Issue: "+issue;
 
-const rows=h.slice().reverse().slice(0,50).map(x=>
-`<tr><td>${x.issue||"-"}</td><td><b>B</b></td><td>${x.result||"-"}</td><td class="${x.status==="WIN"?"win":"loss"}">${x.status||"-"}</td></tr>`
-).join("");
+   document.getElementById("pred").textContent="B";
 
-document.getElementById("history").innerHTML=rows||'<tr><td colspan="4">No history yet</td></tr>';
-}catch(e){
-document.getElementById("status").textContent="🟠 Waiting for tracker data...";
+   /*
+    First load:
+    set the latest issue as the current prediction.
+    Next new issue will settle this B prediction.
+   */
+   if(state.currentIssue===null){
+     state.currentIssue=issue;
+     save();
+   }
+   else if(issue!==state.currentIssue){
+
+     if(state.lastSettled!==issue){
+       addResult(issue,number);
+     }
+
+     state.currentIssue=issue;
+     save();
+   }
+
+   render();
+
+ }catch(e){
+   document.getElementById("status").textContent=
+     "🔴 API connection retrying...";
+ }
 }
+
+function prevPage(){
+ if(page>1){page--;render();}
 }
+
+function nextPage(){
+ let pages=Math.max(1,Math.ceil(state.history.length/PER_PAGE));
+ if(page<pages){page++;render();}
+}
+
+setInterval(load,3000);
+
+setInterval(()=>{
+ seconds--;
+ if(seconds<=0) seconds=30;
+ document.getElementById("timer").textContent=
+   "Next check: "+seconds+"s";
+},1000);
+
+render();
 load();
-setInterval(load,5000);
 </script>
 </body>
 </html>
