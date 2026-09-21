@@ -3,179 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wingo 30S — RANDOM.ORG Prediction Tester</title>
+<title>Wingo 30S — BBBBBBBBBB</title>
 <style>
-body{margin:0;background:#0b1020;color:#eef2ff;font-family:Arial,sans-serif}
+body{margin:0;background:#080d18;color:#eef2ff;font-family:Arial,sans-serif}
 .wrap{max-width:900px;margin:auto;padding:18px}
-.card{background:#141b31;border:1px solid #263250;border-radius:16px;padding:18px;margin-bottom:14px}
-h1{font-size:22px;margin:0 0 8px}.muted{color:#9aa7c7;font-size:13px}
-.status{padding:10px;border-radius:10px;background:#202a45;margin-top:12px}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
-.box{background:#0e1528;padding:14px;border-radius:12px;text-align:center}.num{font-size:24px;font-weight:bold}
-.pred{font-size:42px;font-weight:bold;text-align:center;padding:20px;border-radius:14px;background:#0e1528;margin-top:12px}
-.random{font-size:18px;text-align:center;margin-top:8px}
-.win{color:#22c55e;font-weight:800}.loss{color:#ef4444;font-weight:800}
-.streakGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.streak{background:#0e1528;padding:14px;border-radius:12px;text-align:center}
-.streak .label{color:#9aa7c7;font-size:13px}.streak .value{font-size:24px;font-weight:800;margin-top:5px}
-button{border:0;border-radius:10px;padding:10px 14px;background:#315efb;color:white;font-weight:bold;cursor:pointer}
-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
-th,td{padding:9px;border-bottom:1px solid #28324c;text-align:center}
-.history-win{color:#22c55e;font-weight:800}.history-loss{color:#ef4444;font-weight:800}
-@media(max-width:650px){.grid{grid-template-columns:repeat(2,1fr)}}
+.card{background:#111a30;border:1px solid #263250;border-radius:18px;padding:20px;margin-bottom:16px}
+h1{margin:0 0 8px;font-size:25px}
+.muted{color:#9aa7c7}
+.status{padding:12px;border-radius:12px;background:#202a45;margin-top:14px}
+.pred{font-size:58px;font-weight:900;text-align:center;padding:25px;background:#0e1528;border-radius:15px;margin-top:12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:15px}
+.box{background:#0e1528;padding:18px;border-radius:14px;text-align:center}
+.value{font-size:30px;font-weight:800;margin-top:7px}
+.win{color:#22c55e}.loss{color:#ef4444}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{padding:10px;border-bottom:1px solid #28324c;text-align:center}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 <div class="wrap">
+
 <div class="card">
-<h1>🎲 Wingo 30S — RANDOM.ORG Prediction Tester</h1>
-<div class="muted">RANDOM.ORG se random 0–9 → BIG/SMALL. Actual Wingo result API se automatic settlement.</div>
-<div id="status" class="status">Starting...</div>
+<h1>🔮 Wingo 30S — BBBBBBBBBB</h1>
+<div class="muted">Fixed B prediction • Live tracker data</div>
+<div id="status" class="status">Connecting...</div>
 </div>
 
 <div class="card">
-<div class="muted">CURRENT RANDOM PREDICTION</div>
-<div id="pred" class="pred">WAIT</div>
-<div id="randomNo" class="random">Random number: —</div>
-<div class="muted" style="text-align:center;margin-top:8px">0–4 = SMALL • 5–9 = BIG</div>
+<div class="muted">CURRENT PREDICTION</div>
+<div id="pred" class="pred">B</div>
+<div id="issue" class="muted" style="text-align:center;margin-top:10px">Loading...</div>
 </div>
 
 <div class="grid">
-<div class="box"><div class="muted">WIN</div><div id="win" class="num win">0</div></div>
-<div class="box"><div class="muted">LOSS</div><div id="loss" class="num loss">0</div></div>
-<div class="box"><div class="muted">TOTAL</div><div id="total" class="num">0</div></div>
-<div class="box"><div class="muted">WIN RATE</div><div id="rate" class="num">0%</div></div>
+<div class="box"><div class="muted">WIN</div><div id="win" class="value win">0</div></div>
+<div class="box"><div class="muted">LOSS</div><div id="loss" class="value loss">0</div></div>
+<div class="box"><div class="muted">TOTAL</div><div id="total" class="value">0</div></div>
+<div class="box"><div class="muted">WIN RATE</div><div id="rate" class="value">0%</div></div>
 </div>
 
-<div class="streakGrid">
-<div class="streak"><div class="label">🔥 MAX WIN STREAK</div><div id="maxWin" class="value win">0</div></div>
-<div class="streak"><div class="label">🧊 MAX LOSS STREAK</div><div id="maxLoss" class="value loss">0</div></div>
-</div>
-
-<div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<b>📜 HISTORY</b><button onclick="resetStats()">RESET</button>
-</div>
+<div class="card" style="margin-top:16px">
+<b>📜 HISTORY</b>
 <table>
-<thead><tr><th>Issue</th><th>Random</th><th>Prediction</th><th>Actual</th><th>Status</th></tr></thead>
-<tbody id="history"><tr><td colspan="5">No settled results</td></tr></tbody>
+<thead><tr><th>Issue</th><th>Prediction</th><th>Result</th><th>Status</th></tr></thead>
+<tbody id="history"><tr><td colspan="4">Loading...</td></tr></tbody>
 </table>
 </div>
+
 </div>
 
 <script>
-const WINGO_API="https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json?pageNo=1&pageSize=10";
-const RANDOM_URL="https://www.random.org/integers/?num=1&min=0&max=9&col=1&base=10&format=plain&rnd=new";
-const PROXIES=[
- u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),
- u=>"https://corsproxy.io/?url="+encodeURIComponent(u)
-];
+async function load(){
+try{
+const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});
+const d=await r.json();
 
-let lastIssue="";
-let pending=null;
-let lastTen=[];
-let wins=Number(localStorage.rorgw||0), losses=Number(localStorage.rorgl||0);
-let history=JSON.parse(localStorage.rorgh||"[]");
+const cp=d.current_prediction||{};
+document.getElementById("pred").textContent="B";
+document.getElementById("issue").textContent="Issue: "+(cp.issue||"Waiting...");
+document.getElementById("status").textContent="🟢 BBBBBBBBBB tracker connected";
 
-function save(){localStorage.rorgw=wins;localStorage.rorgl=losses;localStorage.rorgh=JSON.stringify(history)}
-function renderStats(){
- document.getElementById("win").textContent=wins;
- document.getElementById("loss").textContent=losses;
- document.getElementById("total").textContent=wins+losses;
- document.getElementById("rate").textContent=(wins+losses?((wins/(wins+losses))*100).toFixed(2):"0")+"%";
- let cw=0,cl=0,mw=0,ml=0;
- [...history].reverse().forEach(x=>{
-   if(x.status==="WIN"){cw++;cl=0;mw=Math.max(mw,cw)}
-   else{cl++;cw=0;ml=Math.max(ml,cl)}
- });
- document.getElementById("maxWin").textContent=mw;
- document.getElementById("maxLoss").textContent=ml;
- document.getElementById("history").innerHTML=history.length?history.slice(0,50).map(x=>
- `<tr><td>${x.issue}</td><td>${x.random}</td><td>${x.pred}</td><td>${x.actual}</td><td class="${x.status==="WIN"?"history-win":"history-loss"}">${x.status==="WIN"?"🟢 WIN":"🔴 LOSS"}</td></tr>`
- ).join(""):'<tr><td colspan="5">No settled results</td></tr>';
-}
-function resetStats(){wins=0;losses=0;history=[];pending=null;save();renderStats();}
+const h=Array.isArray(d.history)?d.history:[];
+const wins=h.filter(x=>x.status==="WIN").length;
+const losses=h.filter(x=>x.status==="LOSS").length;
+const total=wins+losses;
+const rate=total?((wins/total)*100).toFixed(1):"0";
 
-async function fetchText(url,timeout=7000){
- const c=new AbortController(), t=setTimeout(()=>c.abort(),timeout);
- try{const r=await fetch(url,{cache:"no-store",signal:c.signal}); return {ok:r.ok,text:await r.text(),status:r.status}}
- finally{clearTimeout(t)}
-}
-async function getWingo(){
- const u=WINGO_API+"&_t="+Date.now();
- try{
-   const r=await fetchText(u);
-   const j=JSON.parse(r.text);
-   if(r.ok&&Array.isArray(j?.data?.list)&&j.data.list.length>=10)return j.data.list;
- }catch(e){}
- for(const p of PROXIES){
-   try{
-    const r=await fetchText(p(u));
-    const j=JSON.parse(r.text);
-    if(r.ok&&Array.isArray(j?.data?.list)&&j.data.list.length>=10)return j.data.list;
-   }catch(e){}
- }
- throw new Error("Wingo API unavailable");
-}
-async function getRandom(){
- const u=RANDOM_URL+"&_t="+Date.now();
- try{
-   const r=await fetchText(u);
-   if(r.ok){const n=parseInt(r.text.trim(),10);if(Number.isInteger(n)&&n>=0&&n<=9)return n}
- }catch(e){}
- for(const p of PROXIES){
-   try{
-    const r=await fetchText(p(u));
-    if(r.ok){const n=parseInt(r.text.trim(),10);if(Number.isInteger(n)&&n>=0&&n<=9)return n}
-   }catch(e){}
- }
- throw new Error("RANDOM.ORG unavailable");
-}
-async function makePrediction(){
- const n=await getRandom();
- const pred=n>=5?"BIG":"SMALL";
- document.getElementById("pred").textContent=pred;
- document.getElementById("randomNo").textContent="Random number: "+n;
- return {n,pred};
-}
-async function tick(){
- try{
-   const list=await getWingo();
-   const newest=list[0];
-   if(!lastIssue){
-     lastIssue=String(newest.issueNumber);
-     lastTen=list.slice(0,10);
-     document.getElementById("status").textContent="🟡 10 Wingo results loaded • waiting for NEW issue";
-     return;
-   }
-   if(String(newest.issueNumber)===lastIssue){
-     document.getElementById("status").textContent="🟡 Waiting for next Wingo 30S result...";
-     return;
-   }
+document.getElementById("win").textContent=wins;
+document.getElementById("loss").textContent=losses;
+document.getElementById("total").textContent=total;
+document.getElementById("rate").textContent=rate+"%";
 
-   // New Wingo result settles the previous RANDOM.ORG prediction.
-   if(pending){
-     const actual=Number(newest.number)>=5?"BIG":"SMALL";
-     const status=pending.pred===actual?"WIN":"LOSS";
-     if(status==="WIN")wins++;else losses++;
-     history.unshift({issue:pending.issue,random:pending.random,pred:pending.pred,actual,status});
-     history=history.slice(0,100);save();renderStats();
-   }
+const rows=h.slice().reverse().slice(0,50).map(x=>
+`<tr><td>${x.issue||"-"}</td><td><b>B</b></td><td>${x.result||"-"}</td><td class="${x.status==="WIN"?"win":"loss"}">${x.status||"-"}</td></tr>`
+).join("");
 
-   lastIssue=String(newest.issueNumber);
-   lastTen=[newest,...lastTen].slice(0,10);
-
-   // Generate one fresh RANDOM.ORG number only after the new issue arrives.
-   const r=await makePrediction();
-   pending={issue:String(newest.issueNumber),random:r.n,pred:r.pred};
-   document.getElementById("status").textContent="🟢 New issue detected • RANDOM.ORG prediction generated";
- }catch(e){
-   document.getElementById("status").textContent="🔴 "+e.message+" • retrying...";
- }
+document.getElementById("history").innerHTML=rows||'<tr><td colspan="4">No history yet</td></tr>';
+}catch(e){
+document.getElementById("status").textContent="🟠 Waiting for tracker data...";
 }
-renderStats();
-tick();
-setInterval(tick,3000);
+}
+load();
+setInterval(load,5000);
 </script>
 </body>
 </html>
